@@ -17,21 +17,19 @@ class N11SearchUser(HttpUser):
             "Referer": "https://www.n11.com/",
         })
 
-    @task
-    def search_with_common_keywords(self):
-        # Step 1: Open homepage
-        self.client.get("/", name="Open Homepage")
 
-        # Step 2: Search with a common keyword
+    @task(1)
+    def open_homepage(self):
+        with self.client.get("/", name="Open Homepage", catch_response=True) as response:
+            if response.status_code != 200:
+                response.failure(f"Homepage failed with status code {response.status_code}")
+
+    @task(3)
+    def search_products(self):
         keyword = random.choice(self.search_keywords)
-        response = self.client.get(
-            f"/arama?q={keyword}",
-            name="Search - Common Keyword"
-        )
 
-        # Step 3: Validate response
-        if response.status_code != 200:
-            response.failure(
-                f"Search failed for keyword '{keyword}' "
-                f"with status code {response.status_code}"
-            )
+        with self.client.get(f"/arama?q={keyword}", name="Search Product", catch_response=True) as response:
+            if response.status_code != 200:
+                response.failure(f"Search failed for '{keyword}' with status code {response.status_code}")
+            if response.elapsed.total_seconds() > 2:
+                response.failure("Response time exceeded 2 seconds")
