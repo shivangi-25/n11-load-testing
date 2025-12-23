@@ -1,41 +1,66 @@
-# n11 Search Load Test
+# n11 Search Module – Load Testing
 
-This project contains a basic load test for the search module of https://www.n11.com
-using Locust.
+This project contains load test scenarios to evaluate the behavior and performance of the **search module** on the n11 website.
 
-## Scenario Covered
-- Search for a product keyword from the header (e.g. iphone)
-- Validate search results page response
+The focus is on validating search functionality and observing response behavior under simulated user activity using **Locust**.
 
-## Prerequisites
-- Python 3.8+
-- pip
+---
 
-## Setup
+## Tech Stack
+- Python
+- Locust (HTTP-based load testing tool)
+- Requests (via Locust HTTP client)
+
+---
+
+## Scope of Testing
+
+The load tests cover the following user interactions:
+
+### Scenario 1: Homepage Access
+- User opens the n11 homepage
+- Verifies that the homepage responds successfully
+
+### Scenario 2: Product Search
+- User searches for popular keywords such as:
+  - iphone
+  - laptop
+  - shoes
+  - mobile
+  - tv
+- Validates that the search results page loads correctly
+
+---
+
+## Validations Performed
+
+For each request, the following checks are applied:
+
+- HTTP status code should be **200**
+- Response time should be within an acceptable limit (baseline: **≤ 2 seconds**)
+- Any failed request is explicitly marked as a failure in Locust statistics
+
+---
+
+## Load Configuration
+
+- Virtual Users: **1**
+- Spawn Rate: **1 user**
+- Think Time: **2–5 seconds** between actions
+- Task Distribution:
+  - Homepage access: lower weight
+  - Search action: higher weight (to simulate real user behavior)
+
+---
+
+## How to Run the Test
+
+### 1. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-## Run Load Test
+### Start Locust
 ```bash
 locust
 ```
-#### Open browser & go to http://localhost:8089
-
-## Additional Test Scenarios (Designed)
-
-### Scenario 3: Empty Search
-- Submit search request with empty query
-- Expected: No server error (4xx/5xx), graceful handling
-
-### Scenario 4: Special Characters Search
-- Keywords: @#$%, !!!, <>
-- Expected: Application handles input safely without errors
-
-### Scenario 5: Load Test (Baseline)
-- Users: 1
-- Repeated searches with think time
-- Metrics observed:
-  - Average response time
-  - Maximum response time
-  - Error rate
